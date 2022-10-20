@@ -7,6 +7,10 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'locations.g.dart';
 
+
+
+//This code is from an example
+
 @JsonSerializable()
 class LatLng {
   LatLng({

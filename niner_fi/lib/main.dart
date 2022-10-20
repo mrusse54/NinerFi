@@ -64,7 +64,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
   // 1 = heatmap, 2 = speed test, 3 = outages
   // currently not used until pages are completed
   // I think having back arrows that pop context will work the best
-  // this will allow is to just pop context and not reload the map
+  // this will allow is to just pop context and not reload the map everytime
 
   int currentScreen = 1; //this will be the heatmap screen because it is always the first screen
 
@@ -123,23 +123,16 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
             leading: const Icon(Icons.speed),
             title: const Text("Speed Test"),
             onTap: () {
-              if(currentScreen == 2) {
-                Navigator.pop(context);
-              }else {
-                currentScreen = 2;
                 Navigator.pop(context);
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const dummyPage()));
-              }
             },
           ),
           const Divider( thickness: 1, color: Colors.black,),
           ListTile(
             leading: const Icon(Icons.wifi_off_outlined),
             title: const Text("Outages"),
-            onTap: () {
-              currentScreen = 3;
-            },
+            onTap: () {},
           ),
           const Divider( thickness: 1, color: Colors.black,)
         ],
@@ -163,7 +156,6 @@ class dummyPage extends StatelessWidget {
             icon: Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () => Navigator.pop(context),
           ),
-
         ),
           ),
         );
