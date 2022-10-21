@@ -30,7 +30,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('NinerFi'),
+          title: const Text('DummyName'),
           backgroundColor: Colors.green[700],
         ),
         drawer: const NavigationDrawer(),
