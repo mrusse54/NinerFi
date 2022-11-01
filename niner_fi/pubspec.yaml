@@ -94,7 +94,6 @@ flutter:
 
   assets:
     - assets/locations.json
-    - assets/images/red_square.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

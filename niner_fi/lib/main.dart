@@ -227,9 +227,9 @@ class _speedTestPageState extends State<speedTestPage> {
          padding: EdgeInsets.only(top: 150.0),
           child: Column(
             children: [
-              Text('Download: $_progressDownload mbs',style: TextStyle(fontSize: 20)),
+              Text('Download: $_progressDownload mbps',style: TextStyle(fontSize: 20)),
               SizedBox(height: 7),
-              Text('upload: $_progressUpload mbs',style: TextStyle(fontSize: 20)),
+              Text('upload: $_progressUpload mbps',style: TextStyle(fontSize: 20)),
               SizedBox(height: 7),
               Text('Ping: $_ping',style: TextStyle(fontSize: 20)),
               SizedBox(height: 7),
