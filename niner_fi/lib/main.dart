@@ -1,6 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'locations.dart' as locations;
+import 'package:flutter_speedtest/flutter_speedtest.dart';
 
 
 void main() => runApp(const MyApp());
@@ -19,10 +20,14 @@ class _MyAppState extends State<MyApp> {
 
   final LatLng _center = const LatLng(35.303555, -80.73238);
 
+
+  List<WeightedLatLng> enabledPoints = <WeightedLatLng>[
+    const WeightedLatLng(LatLng(35.30856378061255, -80.73375852431093)),
+  ];
+
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
   }
-
 
 
   @override
@@ -43,9 +48,49 @@ class _MyAppState extends State<MyApp> {
           ),
           myLocationEnabled: true,
           myLocationButtonEnabled: true,
-          tileOverlays: const <TileOverlay>{
-
-          },
+            heatmaps: <Heatmap>{
+              Heatmap(
+                heatmapId: const HeatmapId('test'),
+                data: enabledPoints,
+                gradient: HeatmapGradient(
+                  const <HeatmapGradientColor>[
+                    // Web needs a first color with 0 alpha
+                    if (kIsWeb)
+                      HeatmapGradientColor(
+                        Color.fromARGB(0, 0, 255, 255),
+                        0,
+                      ),
+                    HeatmapGradientColor(
+                      Color.fromARGB(255, 0, 255, 255),
+                      0.2,
+                    ),
+                    HeatmapGradientColor(
+                      Color.fromARGB(255, 0, 63, 255),
+                      0.4,
+                    ),
+                    HeatmapGradientColor(
+                      Color.fromARGB(255, 0, 0, 191),
+                      0.6,
+                    ),
+                    HeatmapGradientColor(
+                      Color.fromARGB(255, 63, 0, 91),
+                      0.8,
+                    ),
+                    HeatmapGradientColor(
+                      Color.fromARGB(255, 255, 0, 0),
+                      1,
+                    ),
+                  ],
+                ),
+                maxIntensity: 1,
+                // Radius behaves differently on web and Android/iOS.
+                radius: kIsWeb
+                    ? 10
+                    : defaultTargetPlatform == TargetPlatform.android
+                    ? 20
+                    : 40,
+              )
+            }
         ),
       ),
     );
@@ -125,7 +170,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
             onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const dummyPage()));
+                    MaterialPageRoute(builder: (context) => const speedTestPage()));
             },
           ),
           const Divider( thickness: 1, color: Colors.black,),
@@ -142,23 +187,89 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
 
 }
 
-class dummyPage extends StatelessWidget {
-  const dummyPage({Key? key}) : super(key: key);
+
+class speedTestPage extends StatefulWidget {
+  const speedTestPage({Key? key}) : super(key: key);
+
+  @override
+  State<speedTestPage> createState() => _speedTestPageState();
+}
+
+class _speedTestPageState extends State<speedTestPage> {
+
+  final _speedtest = FlutterSpeedtest(
+    baseUrl: 'https://speedtest.openfiberusa.com:8080/speedtest/upload.php',
+    pathDownload: '/download',
+    pathUpload: '/upload',
+    pathResponseTime: '/ping',
+  );
+
+  double _progressDownload = 0;
+  double _progressUpload = 0;
+
+  int _ping = 0;
+  int _jitter = 0;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Dummy Page'),
+          title: const Text('Speed Test'),
           backgroundColor: Colors.green[700],
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () => Navigator.pop(context),
           ),
         ),
+        body: Container(
+          alignment: Alignment.center,
+         padding: EdgeInsets.only(top: 150.0),
+          child: Column(
+            children: [
+              Text('Download: $_progressDownload mbs',style: TextStyle(fontSize: 20)),
+              SizedBox(height: 7),
+              Text('upload: $_progressUpload mbs',style: TextStyle(fontSize: 20)),
+              SizedBox(height: 7),
+              Text('Ping: $_ping',style: TextStyle(fontSize: 20)),
+              SizedBox(height: 7),
+              ElevatedButton(
+                onPressed: () {
+                  _speedtest.getDataspeedtest(
+                    downloadOnProgress: ((percent, transferRate) {
+                      setState(() {
+                        _progressDownload = transferRate.roundToDouble();
+                      });
+                    }),
+                    uploadOnProgress: ((percent, transferRate) {
+                      setState(() {
+                        _progressUpload = transferRate.roundToDouble();
+                      });
+                    }),
+                    progressResponse: ((responseTime, jitter) {
+                      setState(() {
+                        _ping = responseTime;
+                        _jitter = jitter;
+                      });
+                    }),
+                    onError: ((errorMessage) {
+
+                    }),
+                    onDone: () => debugPrint('done'),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green
+                ),
+                child: const Text('Speed Test'),
+              ),
+            ],
+
           ),
-        );
+        ),
+      ),
+    );
   }
 }
+
 
