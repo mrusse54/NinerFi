@@ -23,6 +23,11 @@ class _MyAppState extends State<MyApp> {
 
   List<WeightedLatLng> enabledPoints = <WeightedLatLng>[
     const WeightedLatLng(LatLng(35.30856378061255, -80.73375852431093)),
+    const WeightedLatLng(LatLng(35.307574632463066, -80.73406612933738)),
+    const WeightedLatLng(LatLng(35.30832190988692, -80.73532016506068)),
+    const WeightedLatLng(LatLng(35.3075169529927, -80.73539086425971)),
+    const WeightedLatLng(LatLng(35.30609033594021, -80.72873073862192)),
+
   ];
 
   void _onMapCreated(GoogleMapController controller) {
@@ -40,14 +45,14 @@ class _MyAppState extends State<MyApp> {
         ),
         drawer: const NavigationDrawer(),
         body: GoogleMap(
-          onMapCreated: _onMapCreated,
-          initialCameraPosition: CameraPosition(
-            target: _center,
-            zoom: 17.0,
+            onMapCreated: _onMapCreated,
+            initialCameraPosition: CameraPosition(
+              target: _center,
+              zoom: 17.0,
 
-          ),
-          myLocationEnabled: true,
-          myLocationButtonEnabled: true,
+            ),
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
             heatmaps: <Heatmap>{
               Heatmap(
                 heatmapId: const HeatmapId('test'),
@@ -168,9 +173,9 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
             leading: const Icon(Icons.speed),
             title: const Text("Speed Test"),
             onTap: () {
-                Navigator.pop(context);
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const speedTestPage()));
+              Navigator.pop(context);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const speedTestPage()));
             },
           ),
           const Divider( thickness: 1, color: Colors.black,),
@@ -209,6 +214,9 @@ class _speedTestPageState extends State<speedTestPage> {
 
   int _ping = 0;
   int _jitter = 0;
+  bool _inprogress = false;
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -224,7 +232,7 @@ class _speedTestPageState extends State<speedTestPage> {
         ),
         body: Container(
           alignment: Alignment.center,
-         padding: EdgeInsets.only(top: 150.0),
+          padding: EdgeInsets.only(top: 150.0),
           child: Column(
             children: [
               Text('Download: $_progressDownload mbps',style: TextStyle(fontSize: 20)),
@@ -233,36 +241,46 @@ class _speedTestPageState extends State<speedTestPage> {
               SizedBox(height: 7),
               Text('Ping: $_ping',style: TextStyle(fontSize: 20)),
               SizedBox(height: 7),
-              ElevatedButton(
-                onPressed: () {
-                  _speedtest.getDataspeedtest(
-                    downloadOnProgress: ((percent, transferRate) {
-                      setState(() {
-                        _progressDownload = transferRate.roundToDouble();
-                      });
-                    }),
-                    uploadOnProgress: ((percent, transferRate) {
-                      setState(() {
-                        _progressUpload = transferRate.roundToDouble();
-                      });
-                    }),
-                    progressResponse: ((responseTime, jitter) {
-                      setState(() {
-                        _ping = responseTime;
-                        _jitter = jitter;
-                      });
-                    }),
-                    onError: ((errorMessage) {
+              if (!_inprogress) ...{
+                ElevatedButton(
+                  onPressed: () {
+                    _inprogress = true;
+                     _progressDownload = 0;
+                     _progressUpload = 0;
+                     _ping = 0;
 
-                    }),
-                    onDone: () => debugPrint('done'),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green
+                    _speedtest.getDataspeedtest(
+                      downloadOnProgress: ((percent, transferRate) {
+                        setState(() {
+                          _progressDownload = transferRate.roundToDouble();
+                        });
+                      }),
+                      uploadOnProgress: ((percent, transferRate) {
+                        setState(() {
+                          _progressUpload = transferRate.roundToDouble();
+                        });
+                      }),
+                      progressResponse: ((responseTime, jitter) {
+                        setState(() {
+                          _ping = responseTime;
+                          _jitter = jitter;
+                        });
+                      }),
+                      onError: ((errorMessage) {
+
+                      }),
+                      onDone: () => _inprogress = false,
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green
+                  ),
+                  child: const Text('Begin Test'),
+
                 ),
-                child: const Text('Speed Test'),
-              ),
+              } else ...{
+                const CircularProgressIndicator()
+            }
             ],
 
           ),
@@ -271,5 +289,3 @@ class _speedTestPageState extends State<speedTestPage> {
     );
   }
 }
-
-
