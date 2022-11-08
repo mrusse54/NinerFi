@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_speedtest/flutter_speedtest.dart';
+import 'package:http/http.dart' as http;
+import 'package:html/parser.dart' as parser;
 
 
 void main() => runApp(const MyApp());
@@ -118,7 +120,6 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
 
   int currentScreen = 1; //this will be the heatmap screen because it is always the first screen
 
-
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -133,7 +134,6 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
       ),
     );
   }
-
 
   Widget drawerHeader(BuildContext context) {
     return(Container(
@@ -182,7 +182,11 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
           ListTile(
             leading: const Icon(Icons.wifi_off_outlined),
             title: const Text("Outages"),
-            onTap: () {},
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const outagePage()));
+            },
           ),
           const Divider( thickness: 1, color: Colors.black,)
         ],
@@ -282,10 +286,112 @@ class _speedTestPageState extends State<speedTestPage> {
                 const CircularProgressIndicator()
             }
             ],
-
           ),
         ),
       ),
     );
   }
 }
+
+class outagePage extends StatefulWidget {
+  const outagePage({Key? key}) : super(key: key);
+
+  @override
+  State<outagePage> createState() => _outagePageState();
+}
+
+class _outagePageState extends State<outagePage> {
+
+  String outageStatus = 'Checking for outages';
+  bool isLoading = false;
+
+  void initState(){
+    super.initState();
+    getWebsiteData();
+  }
+
+  Future getWebsiteData() async {
+    final response = await http.Client().get(Uri.parse("https://systemstatus.charlotte.edu/content/wi-fi"));
+    if(response.statusCode == 200){
+      var document = parser.parse(response.body);
+      try {
+        var responseString = document.getElementsByClassName("view-empty")[0]
+            .children[0];
+
+        print(responseString.text.trim());
+
+        return responseString.text.trim();
+
+      } catch (e) {
+        return ['', '', 'ERROR: ${response.statusCode}.'];
+      }
+    }
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        home: Scaffold(
+        appBar: AppBar(
+        title: const Text('Speed Test'),
+    backgroundColor: Colors.green[700],
+    leading: IconButton(
+    icon: Icon(Icons.arrow_back, color: Colors.black),
+    onPressed: () => Navigator.pop(context),
+    ),
+    ),
+    body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+            child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+
+            // if isLoading is true show loader
+            // else show Column of Texts
+            isLoading
+                ? CircularProgressIndicator()
+                : Column(
+                    children: [
+                      Text(outageStatus,
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.08),
+            MaterialButton(
+             onPressed: () async {
+
+              // Setting isLoading true to show the loader
+                setState(() {
+                  isLoading = true;
+                });
+
+                // Awaiting for web scraping function
+                // to return list of strings
+                final response = await getWebsiteData();
+                // Setting the received strings to be
+                // displayed and making isLoading false
+                // to hide the loader
+                setState(() {
+                  outageStatus = response;
+                  isLoading = false;
+                });
+              },
+              child: Text(
+                'Scrap Data',
+                style: TextStyle(color: Colors.white),
+              ),
+              color: Colors.green,
+            )
+          ],
+        )),
+      ),
+    )
+    );
+
+
+  }
+}
+
