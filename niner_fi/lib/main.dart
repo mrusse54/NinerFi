@@ -24,13 +24,17 @@ class _MyAppState extends State<MyApp> {
 
 
   List<WeightedLatLng> enabledPoints = <WeightedLatLng>[
-    const WeightedLatLng(LatLng(35.30856378061255, -80.73375852431093)),
-    const WeightedLatLng(LatLng(35.307574632463066, -80.73406612933738)),
-    const WeightedLatLng(LatLng(35.30832190988692, -80.73532016506068)),
-    const WeightedLatLng(LatLng(35.3075169529927, -80.73539086425971)),
-    const WeightedLatLng(LatLng(35.30609033594021, -80.72873073862192)),
+    const WeightedLatLng(LatLng(35.3062, -80.7290)),
+
+
+
+
 
   ];
+  //const WeightedLatLng(LatLng(35.30856378061255, -80.73375852431093)),
+  //     const WeightedLatLng(LatLng(35.307574632463066, -80.73406612933738)),
+  //     const WeightedLatLng(LatLng(35.30832190988692, -80.73532016506068)),
+  //     const WeightedLatLng(LatLng(35.3075169529927, -80.73539086425971)),
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
@@ -112,11 +116,6 @@ class NavigationDrawer extends StatefulWidget {
 }
 
 class _NavigationDrawerState extends State<NavigationDrawer> {
-
-  // 1 = heatmap, 2 = speed test, 3 = outages
-  // currently not used until pages are completed
-  // I think having back arrows that pop context will work the best
-  // this will allow is to just pop context and not reload the map everytime
 
   int currentScreen = 1; //this will be the heatmap screen because it is always the first screen
 
@@ -302,7 +301,7 @@ class outagePage extends StatefulWidget {
 
 class _outagePageState extends State<outagePage> {
 
-  String outageStatus = 'Checking for outages';
+  String outageStatus = 'Press "Check Status" to view WIFI status';
   bool isLoading = false;
 
   void initState(){
@@ -334,7 +333,7 @@ class _outagePageState extends State<outagePage> {
     return MaterialApp(
         home: Scaffold(
         appBar: AppBar(
-        title: const Text('Speed Test'),
+        title: const Text('Outages'),
     backgroundColor: Colors.green[700],
     leading: IconButton(
     icon: Icon(Icons.arrow_back, color: Colors.black),
@@ -342,7 +341,7 @@ class _outagePageState extends State<outagePage> {
     ),
     ),
     body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(1.0),
         child: Center(
             child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -359,7 +358,7 @@ class _outagePageState extends State<outagePage> {
                               fontSize: 20, fontWeight: FontWeight.bold)),
                     ],
                   ),
-            SizedBox(height: MediaQuery.of(context).size.height * 0.08),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.03),
             MaterialButton(
              onPressed: () async {
 
@@ -369,18 +368,30 @@ class _outagePageState extends State<outagePage> {
                 });
 
                 // Awaiting for web scraping function
-                // to return list of strings
+                // to return list of
+                // await causes the subsequent code to wait for the method
+
                 final response = await getWebsiteData();
                 // Setting the received strings to be
                 // displayed and making isLoading false
                 // to hide the loader
-                setState(() {
-                  outageStatus = response;
-                  isLoading = false;
-                });
+
+                if(response == "There are no active alerts at this time."){
+                  setState(() {
+                    outageStatus = response;
+                    isLoading = false;
+                  });
+                } else {
+                  setState(() {
+                    outageStatus = "There is currently an outage on campus.";
+                    isLoading = false;
+                  });
+                }
+
+
               },
               child: Text(
-                'Scrap Data',
+                'Check Status',
                 style: TextStyle(color: Colors.white),
               ),
               color: Colors.green,
