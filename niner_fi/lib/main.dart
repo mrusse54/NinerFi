@@ -23,7 +23,9 @@ class _MyAppState extends State<MyApp> {
 
   final LatLng _center = const LatLng(35.303555, -80.73238);
 
-  final List<WeightedLatLng> enabledPoints = <WeightedLatLng>[];
+  final List<WeightedLatLng> enabledPoints = <WeightedLatLng>[
+  const WeightedLatLng(LatLng(35.303555, -80.73238)),
+  ];
   Future<void> _onMapCreated(GoogleMapController controller) async {
     final googleOffices = await locations.getGoogleOffices();
     setState(() {
