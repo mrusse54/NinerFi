@@ -1,9 +1,12 @@
+import 'dart:ffi';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_speedtest/flutter_speedtest.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as parser;
+import 'locations.dart' as locations;
 
 
 void main() => runApp(const MyApp());
@@ -18,28 +21,29 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
-  late GoogleMapController mapController;
-
   final LatLng _center = const LatLng(35.303555, -80.73238);
 
-
-  List<WeightedLatLng> enabledPoints = <WeightedLatLng>[
-    const WeightedLatLng(LatLng(35.3062, -80.7290)),
-
-
-
-
-
-  ];
-  //const WeightedLatLng(LatLng(35.30856378061255, -80.73375852431093)),
-  //     const WeightedLatLng(LatLng(35.307574632463066, -80.73406612933738)),
-  //     const WeightedLatLng(LatLng(35.30832190988692, -80.73532016506068)),
-  //     const WeightedLatLng(LatLng(35.3075169529927, -80.73539086425971)),
-
-  void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
+  final List<WeightedLatLng> enabledPoints = <WeightedLatLng>[];
+  Future<void> _onMapCreated(GoogleMapController controller) async {
+    final googleOffices = await locations.getGoogleOffices();
+    setState(() {
+      enabledPoints.clear();
+      for (final building in googleOffices.buildings) {
+        debugPrint(building.building);
+        final marker = WeightedLatLng(
+            LatLng(building.lat, building.lng));
+        for( int i = 0 ; i < building.count ; i++) {
+          debugPrint(building.count.toString());
+          enabledPoints.add(marker);
+        }
+      }
+    });
   }
 
+
+  List<WeightedLatLng> enabledPoints2 = <WeightedLatLng>[
+    const WeightedLatLng(LatLng(35.303555, -80.73238)),
+  ];
 
   @override
   Widget build(BuildContext context) {

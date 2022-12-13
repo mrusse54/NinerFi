@@ -12,83 +12,41 @@ part 'locations.g.dart';
 //This code is from an example
 
 @JsonSerializable()
-class LatLng {
-  LatLng({
+class Buildings {
+  Buildings({
+    required this.building,
     required this.lat,
     required this.lng,
+    required this.count,
   });
 
-  factory LatLng.fromJson(Map<String, dynamic> json) => _$LatLngFromJson(json);
-  Map<String, dynamic> toJson() => _$LatLngToJson(this);
+  factory Buildings.fromJson(Map<String, dynamic> json) => _$BuildingsFromJson(json);
+  Map<String, dynamic> toJson() => _$BuildingsToJson(this);
 
+  final String building;
   final double lat;
   final double lng;
+  final int count;
+
 }
 
-@JsonSerializable()
-class Region {
-  Region({
-    required this.coords,
-    required this.id,
-    required this.name,
-    required this.zoom,
-  });
-
-  factory Region.fromJson(Map<String, dynamic> json) => _$RegionFromJson(json);
-  Map<String, dynamic> toJson() => _$RegionToJson(this);
-
-  final LatLng coords;
-  final String id;
-  final String name;
-  final double zoom;
-}
-
-@JsonSerializable()
-class Office {
-  Office({
-    required this.address,
-    required this.id,
-    required this.image,
-    required this.lat,
-    required this.lng,
-    required this.name,
-    required this.phone,
-    required this.region,
-  });
-
-  factory Office.fromJson(Map<String, dynamic> json) => _$OfficeFromJson(json);
-  Map<String, dynamic> toJson() => _$OfficeToJson(this);
-
-  final String address;
-  final String id;
-  final String image;
-  final double lat;
-  final double lng;
-  final String name;
-  final String phone;
-  final String region;
-}
 
 @JsonSerializable()
 class Locations {
   Locations({
-    required this.offices,
-    required this.regions,
+    required this.buildings,
   });
-
-
-
 
   factory Locations.fromJson(Map<String, dynamic> json) =>
       _$LocationsFromJson(json);
   Map<String, dynamic> toJson() => _$LocationsToJson(this);
 
-  final List<Office> offices;
-  final List<Region> regions;
+  final List<Buildings> buildings;
+
 }
 
 Future<Locations> getGoogleOffices() async {
-  const googleLocationsURL = 'https://about.google/static/data/locations.json';
+  const googleLocationsURL = 'https://ninerfi.azurewebsites.net/api/connecteddevices';
 
   // Retrieve the locations of Google offices
   try {
