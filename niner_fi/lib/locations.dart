@@ -30,7 +30,6 @@ class Buildings {
 
 }
 
-
 @JsonSerializable()
 class Locations {
   Locations({

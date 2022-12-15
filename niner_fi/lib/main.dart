@@ -1,5 +1,4 @@
 import 'dart:ffi';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -52,20 +51,18 @@ class _MyAppState extends State<MyApp> {
                   enabledPoints.clear();
                   _markers.clear();
                   for (final building in googleOffices.buildings) {
-                    debugPrint(building.building);
                     final marker = Marker(
                       markerId: MarkerId(building.building),
                       position: LatLng(building.lat, building.lng),
                       infoWindow: InfoWindow(
                         title: building.building,
-                        snippet:"Current connections: " + building.count.toString(),
+                        snippet:"Current Connections: " + building.count.toString(),
                       ),
                     );
                     _markers[building.building] = marker;
                     final points = WeightedLatLng(
                         LatLng(building.lat, building.lng));
                     for( int i = 0 ; i < building.count ; i++) {
-                      debugPrint(building.count.toString());
                       enabledPoints.add(points);
                     }
                   }
@@ -73,7 +70,7 @@ class _MyAppState extends State<MyApp> {
                 },
           initialCameraPosition: CameraPosition(
             target: _center,
-            zoom: 17.0,
+            zoom: 16.0,
           ),
           markers: _markers.values.toSet(),
           heatmaps: <Heatmap>{
@@ -132,6 +129,10 @@ class _MyAppState extends State<MyApp> {
           final marker = Marker(
             markerId: MarkerId("currentLocation"),
             position: LatLng(position.latitude, position.longitude),
+            infoWindow: InfoWindow(
+              title: "User",
+              snippet:"Current Location",
+            ),
           );
 
           _markers["currentLocation"] = marker;
@@ -305,7 +306,7 @@ class _speedTestPageState extends State<speedTestPage> {
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Speed Test'),
-          backgroundColor: Colors.green[700],
+          backgroundColor: const Color(0xFF046A38),
           leading: IconButton(
             icon: Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () => Navigator.pop(context),
@@ -356,9 +357,9 @@ class _speedTestPageState extends State<speedTestPage> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green
+                      backgroundColor: const Color(0xFF046A38)
                   ),
-                  child: const Text('Begin Test'),
+                  child: const Text('Begin Test' ),
 
                 ),
               } else
@@ -415,7 +416,7 @@ class _outagePageState extends State<outagePage> {
         home: Scaffold(
           appBar: AppBar(
             title: const Text('Outages'),
-            backgroundColor: Colors.green[700],
+            backgroundColor: const Color(0xFF046A38),
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: Colors.black),
               onPressed: () => Navigator.pop(context),
@@ -477,7 +478,7 @@ class _outagePageState extends State<outagePage> {
                         'Check Status',
                         style: TextStyle(color: Colors.white),
                       ),
-                      color: Colors.green,
+                      color: const Color(0xFF046A38),
                     )
                   ],
                 )),
